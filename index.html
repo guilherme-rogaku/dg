@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guess It Daily</title>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3YFK27935D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-3YFK27935D');
+  </script>
+ <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3135072848303241" crossorigin="anonymous"></script>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Jost:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding: 12px 16px 24px;
+      overflow-x: hidden;
+    }
+    h1 { font-size: 22px; margin-bottom: 2px; }
+    p.subtitle { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+    .bible-bar {
+      display: flex;
+      justify-content: space-between;
+      max-width: 100%;
+      padding: 6px 16px;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 12px;
+      color: #475569;
+    }
+    .bible-bar span { max-width: 48%; }
+
+    /* TOP BAR */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 420px;
+      margin: 0 auto 12px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .energy-bar { display: flex; gap: 3px; align-items: center; flex-wrap: wrap; }
+    .energy-bolt { font-size: 18px; transition: filter 0.2s; }
+    .energy-bolt.empty { filter: grayscale(1) opacity(0.25); }
+    .points-display {
+      background: #1e293b;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #fbbf24;
+    }
+    .btn-how {
+      background: #1e293b;
+      border: none;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'Jost', sans-serif;
+      color: #fbbf24;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-how:hover { background: #334155; color: #f59e0b; }
+
+
+    /* TRANSLATION HINT */
+    .pt-hint {
+      font-size: 15px;
+      font-weight: bold;
+      color: #94a3b8;
+      margin-bottom: 8px;
+      cursor: default;
+      user-select: none;
+    }
+    .pt-hint span {
+      filter: blur(6px);
+      transition: filter 0.3s;
+      font-style: italic;
+      font-size: 15px;
+      font-weight: bold;
+    }
+    .pt-hint:hover span { filter: blur(0); }
+
+    /* CARD */
+    .card {
+      background: #1e293b;
+      padding: 20px 18px;
+      border-radius: 16px;
+      max-width: 420px;
+      margin: auto;
+    }
+    .image-box {
+      font-size: 90px;
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      line-height: 1;
+    }
+    .image-box img {
+      width: min(320px, 70vw);
+      height: min(320px, 70vw);
+      object-fit: contain;
+      border-radius: 8px;
+      display: block;
+      margin: 0 auto;
+    }
+    .category {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #475569;
+      margin-bottom: 14px;
+    }
+
+    /* LETTER BOXES */
+    .letter-hint {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      min-height: 48px;
+      align-items: center;
+    }
+    .letter-box {
+      width: 36px;
+      height: 40px;
+      border: 2px solid #334155;
+      border-radius: 6px;
+      background: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: #f1f5f9;
+      text-transform: uppercase;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .letter-box.revealed {
+      border-color: #3b82f6;
+      background: #1d4ed8;
+      color: white;
+    }
+    .letter-box.correct {
+      border-color: #22c55e;
+      background: #15803d;
+      color: white;
+    }
+    .letter-box.failed {
+      border-color: #eab308;
+      background: #854d0e;
+      color: white;
+    }
+
+    input {
+      padding: 10px 14px;
+      width: 100%;
+      border-radius: 8px;
+      border: 2px solid #334155;
+      background: #0f172a;
+      color: white;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus { border-color: #3b82f6; }
+    input:disabled { opacity: 0.4; }
+
+    .buttons { display: flex; gap: 8px; margin-top: 10px; }
+    button.btn-main {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    #btn-guess { background: #22c55e; color: white; }
+    #btn-guess:hover:not(:disabled) { background: #16a34a; }
+    #btn-guess:disabled { opacity: 0.4; cursor: default; }
+    #btn-next { background: #3b82f6; color: white; }
+    #btn-next:hover { background: #2563eb; }
+
+    .result { margin-top: 12px; font-size: 17px; font-weight: bold; min-height: 26px; }
+    .sub-info { color: #64748b; font-size: 13px; margin-top: 4px; min-height: 18px; }
+
+    /* MODALS */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 28px 24px;
+      max-width: 340px;
+      width: 90%;
+      text-align: center;
+    }
+    .modal h2 { font-size: 20px; margin-bottom: 8px; }
+    .modal p { color: #94a3b8; font-size: 14px; margin-bottom: 18px; line-height: 1.6; }
+    .modal-buttons { display: flex; flex-direction: column; gap: 8px; }
+    .modal-buttons button {
+      padding: 11px;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-ad { background: #f59e0b; color: #0f172a; }
+    .btn-ad:hover { background: #d97706; }
+    .btn-close { background: #334155; color: white; }
+    .btn-close:hover { background: #475569; }
+
+    /* AD */
+    .ad-box {
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #64748b;
+    }
+    .ad-timer { font-size: 32px; font-weight: bold; color: #f59e0b; margin: 6px 0; }
+    .ad-progress { height: 6px; background: #334155; border-radius: 4px; margin-top: 10px; overflow: hidden; }
+    .ad-progress-bar { height: 100%; background: #f59e0b; border-radius: 4px; transition: width 1s linear; }
+
+    /* NAME INPUT */
+    .modal input.name-input {
+      padding: 10px 14px;
+      width: 100%;
+      border-radius: 8px;
+      border: 2px solid #334155;
+      background: #0f172a;
+      color: white;
+      font-size: 15px;
+      outline: none;
+      margin-bottom: 14px;
+    }
+    .modal input.name-input:focus { border-color: #3b82f6; }
+
+    /* AD SLOTS */
+    .ad-layout {
+      display: block;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    .ad-left {
+      position: fixed;
+      left: calc(50% - 560px);
+      top: 50%;
+      transform: translateY(-50%);
+      width: 160px;
+      min-height: 320px;
+      background: transparent;
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .ad-right {
+      position: fixed;
+      right: calc(50% - 560px);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: transparent;
+    }
+    .ad-right-box {
+      width: 160px;
+      height: 150px;
+      background: transparent;
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .ad-label {
+      font-size: 11px;
+      font-weight: bold;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 4px;
+    }
+    .ad-center {
+      max-width: 900px;
+      margin: 8px auto 0;
+      text-align: center;
+      font-size: 12px;
+      color: #475569;
+    }
+    .ad-center a { color: #3b82f6; text-decoration: none; }
+    .ad-center a:hover { text-decoration: underline; }
+
+    /* hide ad slots on small screens */
+  @media (max-width: 1200px) {
+  .ad-left, .ad-right {
+    display: none;
+  }
+}
+
+    /* ── MOBILE ── */
+    @media (max-width: 480px) {
+      body { padding: 8px 10px 20px; }
+
+      h1 { font-size: 18px; }
+      p.subtitle { font-size: 12px; margin-bottom: 10px; }
+
+      .bible-bar { font-size: 10px; padding: 4px 10px; }
+
+      .top-bar {
+        margin-bottom: 8px;
+        gap: 6px;
+      }
+      .energy-bolt { font-size: 15px; }
+      .points-display { font-size: 12px; padding: 3px 10px; }
+
+      .card { padding: 14px 12px; border-radius: 12px; }
+
+      .image-box {
+        padding: 10px;
+        margin-bottom: 8px;
+      }
+      .image-box img {
+        width: min(220px, 80vw);
+        height: min(220px, 80vw);
+      }
+
+      .pt-hint { font-size: 11px; margin-bottom: 6px; }
+      .pt-hint span { font-size: 13px; }
+
+      .letter-box { width: 30px; height: 34px; font-size: 15px; }
+
+      input { font-size: 16px; padding: 9px 12px; }
+
+      button.btn-main { font-size: 14px; padding: 9px; }
+
+      .result { font-size: 15px; }
+      .sub-info { font-size: 12px; }
+
+      .done-card { padding: 28px 16px; }
+      .done-card .done-emoji { font-size: 48px; }
+      .done-card h2 { font-size: 18px; }
+      .done-card .done-pts { font-size: 24px; }
+    }
+    .done-card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 40px 24px;
+      max-width: 420px;
+      margin: auto;
+      display: none;
+    }
+    .done-card .done-emoji { font-size: 64px; margin-bottom: 12px; }
+    .done-card h2 { font-size: 22px; margin-bottom: 8px; }
+    .done-card p { color: #94a3b8; font-size: 14px; line-height: 1.6; margin-bottom: 6px; }
+    .done-card .done-pts { font-size: 30px; font-weight: bold; color: #fbbf24; margin: 14px 0; }
+
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Jost:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="bible-bar">
+    <span>Eclesiastes 3 : 1</span>
+    <span style="text-align:right">Jesus é o caminho, a verdade e a vida</span>
+  </div>
+
+  <img src="imagemcentro.png" alt="Guess It Daily" style="width:min(280px,70vw);display:block;margin:0 auto 10px;">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="energy-bar" id="energy-bar"></div>
+    <button class="btn-how" onclick="openHowToPlay()">COMO JOGAR 🎮</button>
+    <div class="points-display">⭐ <span id="points">0</span> pts</div>
+  </div>
+
+  <div class="ad-layout">
+
+    <!-- GAME COLUMN -->
+    <div style="flex:1;min-width:0;max-width:420px;">
+
+  <!-- GAME CARD -->
+  <div class="card" id="game-card">
+    <div class="image-box" id="image">🍎</div>
+    <div class="pt-hint" id="pt-hint"></div>
+    <div class="category" id="category"></div>
+    <div class="letter-hint" id="letter-hint"></div>
+    <input type="text" id="guess" placeholder="Escreva a palavra em Inglês..." autocomplete="off">
+    <div class="buttons">
+      <button class="btn-main" id="btn-guess" onclick="checkGuess()">Adivinhar</button>
+      <button class="btn-main" id="btn-next" onclick="nextRound()" style="display:none">▶ Próximo</button>
+    </div>
+    <div class="result" id="result"></div>
+    <div class="sub-info" id="sub-info"></div>
+  </div>
+
+
+
+  <!-- DONE CARD -->
+  <div class="done-card" id="done-card">
+    <div class="done-emoji">🌙</div>
+    <h2>Novas Imagens Amanhã!</h2>
+    <p>Você usou todas as suas energias de hoje.</p>
+    <div class="done-pts" id="done-pts">0 pts</div>
+    <p>Volte amanhã para novos desafios!</p>
+    <br>
+    <button class="btn-ranking" style="padding:10px 20px;font-size:15px">Obrigado por Jogar 🎉</button>
+  </div>
+
+    </div><!-- end game column -->
+
+  </div><!-- end ad-layout -->
+
+ <!-- AD LATERAL DIREITO -->
+  <div class="ad-right">
+    <div class="ad-right-box">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-3135072848303241"
+           data-ad-slot="6292654215"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+           (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+  </div>
+
+  <!-- MODAL: COMO JOGAR -->
+  <div class="modal-overlay" id="modal-how">
+    <div class="modal" style="max-width:400px;text-align:left;">
+      <h2 style="text-align:center;margin-bottom:16px;">❓ Como Jogar</h2>
+      <p style="margin-bottom:12px;">Uma imagem aparece na tela. Seu objetivo é escrever a palavra correspondente <strong style="color:#f1f5f9">em inglês</strong> no campo de texto.</p>
+      <p style="margin-bottom:8px;color:#f1f5f9;font-weight:bold;">Os quadrados mostram:</p>
+      <ul style="color:#94a3b8;font-size:14px;padding-left:18px;margin-bottom:14px;line-height:2;">
+        <li>Quantas letras tem a palavra</li>
+        <li>Quando há mais de uma palavra, cada linha representa uma palavra</li>
+      </ul>
+      <p style="margin-bottom:8px;color:#f1f5f9;font-weight:bold;">Dicas progressivas:</p>
+      <ul style="color:#94a3b8;font-size:14px;padding-left:18px;margin-bottom:14px;line-height:2;">
+        <li>🔵 <strong style="color:#f1f5f9">1º erro</strong> — 1 letra aleatória é revelada</li>
+        <li>🔵 <strong style="color:#f1f5f9">2º erro</strong> — mais 2 letras são reveladas</li>
+        <li>🟡 <strong style="color:#f1f5f9">3º erro</strong> — a palavra completa é revelada</li>
+        <li>🟢 <strong style="color:#f1f5f9">Acertou!</strong> — todos os quadrados ficam verdes</li>
+      </ul>
+      <p style="margin-bottom:8px;color:#f1f5f9;font-weight:bold;">Pontuação:</p>
+      <ul style="color:#94a3b8;font-size:14px;padding-left:18px;margin-bottom:14px;line-height:2;">
+        <li>🥇 Acertou de primeira — <strong style="color:#fbbf24">100 pts</strong></li>
+        <li>🥈 Acertou com 1 dica — <strong style="color:#fbbf24">60 pts</strong></li>
+        <li>🥉 Acertou com 2 dicas — <strong style="color:#fbbf24">20 pts</strong></li>
+        <li>❌ Não acertou — <strong style="color:#fbbf24">0 pts</strong></li>
+      </ul>
+      <p style="margin-bottom:16px;color:#94a3b8;font-size:14px;">⚡ Cada imagem consome <strong style="color:#f1f5f9">1 energia</strong> ao avançar. Ao terminar as energias, assista a um anúncio para ganhar <strong style="color:#f1f5f9">+5 energias</strong>.</p>
+      <div class="modal-buttons">
+        <button class="btn-close" onclick="closeHowToPlay()" style="background:#3b82f6;color:white;">Entendi! Vamos jogar 🎮</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SEM ENERGIA -->
+  <div class="modal-overlay" id="modal-energy">
+    <div class="modal">
+      <h2>💔 Sem Energia!</h2>
+      <p>Você usou todas as suas energias.<br>Assista a um anúncio para ganhar <strong>+5 energias</strong> e continuar jogando!</p>
+      <div class="modal-buttons">
+        <button class="btn-ad" onclick="watchAd()">📺 Assistir Anúncio (+5 ⚡)</button>
+        <button class="btn-close" onclick="closeEnergyModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ANÚNCIO -->
+  <div class="modal-overlay" id="modal-ad">
+    <div class="modal">
+      <h2>📺 Anúncio</h2>
+      <div class="ad-box">
+        <div style="font-size:40px;margin-bottom:6px">🎬</div>
+        <div>Aguarde o anúncio terminar...</div>
+        <div class="ad-timer" id="ad-timer">5</div>
+        <div class="ad-progress">
+          <div class="ad-progress-bar" id="ad-bar" style="width:0%"></div>
+        </div>
+      </div>
+      <p style="margin-bottom:0">Você receberá <strong style="color:#fbbf24">+5 energias</strong> ao terminar.</p>
+    </div>
+  </div>
+
+  <script>
+    // ── DATA ──────────────────────────────────────────────
+    const allItems = [
+      { img:"Easy/telephone.png",    answer:"telephone",  pt:"Telefone"    }, // 1
+      { img:"Easy/diamond.jpg",      answer:"diamond",    pt:"Diamante"    }, // 2
+      { img:"Easy/candle.jpg",       answer:"candle",     pt:"Vela"        }, // 3
+      { img:"Easy/whistle.jpg",      answer:"whistle",    pt:"Apito"       }, // 4
+      { img:"Easy/garden.jpg",       answer:"garden",     pt:"Jardim"      }, // 5
+      { img:"Medium/lantern.jpg",    answer:"lantern",    pt:"Lamparina"   }, // 6
+      { img:"Medium/cotton.jpg",     answer:"cotton",     pt:"Algodão"     }, // 7
+      { img:"Medium/eggplant.jpg",   answer:"eggplant",   pt:"Berinjela"   }, // 8
+      { img:"Hard/oar.jpg",          answer:"oar",        pt:"Remo"        }, // 9
+      { img:"Hard/wreath.jpg",       answer:"wreath",     pt:"Guirlanda"   }, // 10
+    ];
+
+    // ── CONSTANTS ─────────────────────────────────────────
+    const MAX_ENERGY   = 5;
+    const BONUS_ENERGY = 5;
+    const AD_AFTER     = 5; // oferecer anúncio após esta rodada
+
+    // ── STATE ─────────────────────────────────────────────
+    let energy, points, playerName, adWatched;
+    let roundCount; // índice atual em allItems (0-based)
+    let current, attempts, roundActive;
+    let adInterval = null;
+
+    // ── POINTS ────────────────────────────────────────────
+    // 0 wrong = 100, 1 wrong = 60, 2 wrong = 20, gave up/wrong 3 = 0
+    function calcPoints(wrongCount) {
+      return [100, 60, 20, 0][Math.min(wrongCount, 3)];
+    }
+
+    // ── STORAGE ───────────────────────────────────────────
+    function todayKey() { return new Date().toISOString().slice(0, 10); }
+
+    function saveState() {
+      localStorage.setItem("gie_energy",    energy);
+      localStorage.setItem("gie_points",    points);
+      localStorage.setItem("gie_name",      playerName);
+      localStorage.setItem("gie_adwatched", adWatched ? "1" : "0");
+      localStorage.setItem("gie_day",       todayKey());
+      localStorage.setItem("gie_round",     roundCount);
+    }
+
+    function loadState() {
+      // sem restrição de dia (modo teste)
+      energy     = MAX_ENERGY;
+      adWatched  = false;
+      roundCount = 0;
+      points     = 0;
+      playerName = localStorage.getItem("gie_name") ?? "";
+    }
+
+    // ── NAME ──────────────────────────────────────────────
+    // (removido — nome não é mais solicitado)
+
+    function openHowToPlay() {
+      document.getElementById("modal-how").classList.add("open");
+    }
+    function closeHowToPlay() {
+      document.getElementById("modal-how").classList.remove("open");
+    }
+
+    // ── ENERGY ────────────────────────────────────────────
+    function renderEnergy() {
+      const bar = document.getElementById("energy-bar");
+      bar.innerHTML = "";
+      const display = Math.max(energy, 0);
+      const total   = Math.max(MAX_ENERGY, display);
+      for (let i = 0; i < total; i++) {
+        const s = document.createElement("span");
+        s.className = "energy-bolt" + (i < display ? "" : " empty");
+        s.innerText = "⚡";
+        bar.appendChild(s);
+      }
+    }
+
+    function spendEnergy() {
+      energy = Math.max(0, energy - 1);
+      renderEnergy();
+      saveState();
+    }
+
+    function addEnergy(n) {
+      energy += n;
+      renderEnergy();
+      saveState();
+    }
+
+    function openEnergyModal() {
+      // se já assistiu o anúncio hoje, mostra tela de fim de dia
+      if (adWatched) { showDoneScreen(); return; }
+      document.getElementById("modal-energy").classList.add("open");
+    }
+
+    function closeEnergyModal() {
+      document.getElementById("modal-energy").classList.remove("open");
+    }
+
+    // ── AD ────────────────────────────────────────────────
+    function watchAd() {
+      closeEnergyModal();
+      document.getElementById("modal-ad").classList.add("open");
+      const total = 5;
+      let elapsed = 0;
+      document.getElementById("ad-timer").innerText = total;
+      document.getElementById("ad-bar").style.width = "0%";
+
+      adInterval = setInterval(() => {
+        elapsed++;
+        document.getElementById("ad-bar").style.width = (elapsed / total * 100) + "%";
+        document.getElementById("ad-timer").innerText = total - elapsed;
+        if (elapsed >= total) {
+          clearInterval(adInterval);
+          adInterval = null;
+          adWatched = true;
+          document.getElementById("modal-ad").classList.remove("open");
+          addEnergy(BONUS_ENERGY);
+          document.getElementById("result").innerText = "⚡ +5 energias! Continue jogando!";
+          enableInput();
+          saveState();
+          loadNext(); // avança automaticamente para a 11ª imagem
+        }
+      }, 1000);
+    }
+
+    // ── DONE SCREEN ───────────────────────────────────────
+    function showDoneScreen() {
+      document.getElementById("game-card").style.display = "none";
+      document.getElementById("done-card").style.display = "block";
+      document.getElementById("done-pts").innerText = points + " pts";
+      saveState();
+    }
+
+    // ── LETTER HINT RENDERING ─────────────────────────────
+    // revealedIndices: array de índices já revelados por palavra
+    let revealedIndices = [];
+
+    function initRevealedIndices() {
+      // começa com nenhuma letra revelada, apenas os quadrados visíveis
+      revealedIndices = current.answer.split("").map(() => false);
+    }
+
+    function revealRandomLetters(count) {
+      const word = current.answer;
+      // pega índices ainda não revelados (ignora espaços)
+      const hidden = word.split("").reduce((acc, ch, i) => {
+        if (ch !== " " && !revealedIndices[i]) acc.push(i);
+        return acc;
+      }, []);
+      // embaralha e revela 'count' letras
+      const shuffled = hidden.sort(() => Math.random() - 0.5);
+      shuffled.slice(0, count).forEach(i => revealedIndices[i] = true);
+    }
+
+    function renderLetterHint(stage) {
+      const container = document.getElementById("letter-hint");
+      container.innerHTML = "";
+      const word = current.answer;
+      const words = word.split(" ");
+
+      if (stage === 2 || stage === 3) {
+        word.split("").forEach((ch, i) => { if (ch !== " ") revealedIndices[i] = true; });
+      }
+
+      // Calcula tamanho dos quadrados para palavra única longa
+      const singleWord = words.length === 1;
+      const letterCount = words[0].length;
+      let boxSize = 36, fontSize = 18, gap = 6;
+      if (singleWord && letterCount > 9) {
+        // Largura disponível aproximada (card 420px - padding 36px = ~348px)
+        const available = Math.min(348, window.innerWidth - 72);
+        boxSize  = Math.max(22, Math.floor((available - gap * (letterCount - 1)) / letterCount));
+        fontSize = Math.max(12, Math.floor(boxSize * 0.5));
+        gap      = Math.max(3, Math.floor(boxSize * 0.15));
+      }
+
+      if (singleWord) {
+        container.style.flexDirection = "";
+        container.style.alignItems = "";
+        const row = document.createElement("div");
+        row.style.cssText = `display:flex;gap:${gap}px;justify-content:center;flex-wrap:nowrap;`;
+        words[0].split("").forEach((ch, i) => {
+          row.appendChild(makeBox(ch, i, stage, boxSize, fontSize));
+        });
+        container.appendChild(row);
+        return;
+      }
+
+      // Múltiplas palavras: cada palavra numa linha própria
+      container.style.flexDirection = "column";
+      container.style.alignItems = "center";
+      let globalIndex = 0;
+      words.forEach((w, wi) => {
+        // calcula tamanho para cada palavra individualmente
+        let wBoxSize = 36, wFontSize = 18, wGap = 6;
+        if (w.length > 9) {
+          const available = Math.min(348, window.innerWidth - 72);
+          wBoxSize   = Math.max(22, Math.floor((available - wGap * (w.length - 1)) / w.length));
+          wFontSize  = Math.max(12, Math.floor(wBoxSize * 0.5));
+          wGap       = Math.max(3, Math.floor(wBoxSize * 0.15));
+        }
+        const row = document.createElement("div");
+        row.style.cssText = `display:flex;gap:${wGap}px;justify-content:center;flex-wrap:nowrap;margin-bottom:${wGap}px;`;
+        w.split("").forEach(() => {
+          row.appendChild(makeBox(word[globalIndex], globalIndex, stage, wBoxSize, wFontSize));
+          globalIndex++;
+        });
+        container.appendChild(row);
+        if (wi < words.length - 1) {
+          globalIndex++; // pula espaço
+        }
+      });
+    }
+
+    function makeBox(ch, index, stage, boxSize = 36, fontSize = 18) {
+      const box = document.createElement("div");
+      box.className = "letter-box";
+      box.style.cssText = `width:${boxSize}px;height:${Math.floor(boxSize * 1.1)}px;font-size:${fontSize}px;`;
+      if (stage === 2) {
+        // acertou — verde
+        box.innerText = ch.toUpperCase();
+        box.classList.add("correct");
+      } else if (stage === 3) {
+        // 3º erro, palavra revelada — amarelo
+        box.innerText = ch.toUpperCase();
+        box.classList.add("failed");
+      } else if (revealedIndices[index]) {
+        // dica de letra durante o jogo — azul
+        box.innerText = ch.toUpperCase();
+        box.classList.add("revealed");
+      } else {
+        box.innerText = "";
+      }
+      return box;
+    }
+
+    // ── GAME ──────────────────────────────────────────────
+    function initGame() {
+      renderEnergy();
+      updatePointsDisplay();
+      // se já completou todas as imagens hoje, mostra tela de fim
+      if (roundCount >= allItems.length) { showDoneScreen(); return; }
+      loadNext();
+    }
+
+    function loadNext() {
+      // todas as 15 imagens concluídas
+      if (roundCount >= allItems.length) { showDoneScreen(); return; }
+
+      // após a 10ª imagem, se ainda não assistiu o anúncio e energia acabou
+      if (energy <= 0 && adWatched)  { showDoneScreen(); return; }
+      if (energy <= 0)               { openEnergyModal(); return; }
+
+      current     = allItems[roundCount];
+      roundCount++;
+      attempts    = 0;
+      roundActive = true;
+
+      saveState();
+
+      document.getElementById("image").innerText    = current.emoji || "";
+      const imgEl = document.getElementById("image");
+      if (current.img) {
+        imgEl.innerHTML = `<img src="${current.img}" alt="${current.answer}">`;
+      } else {
+        imgEl.innerText = current.emoji;
+      }
+      document.getElementById("category").innerText = "";
+      document.getElementById("pt-hint").innerHTML  = current.pt ? `🇧🇷 Passe o mouse para ver a tradução: <span>${current.pt}</span>` : "";
+      document.getElementById("guess").value        = "";
+      document.getElementById("result").innerText   = "";
+
+      enableInput();
+      document.getElementById("btn-next").style.display = "none";
+      initRevealedIndices();
+      renderLetterHint(0); // mostra quadrados em branco desde o início
+      document.getElementById("guess").focus();
+    }
+
+    function enableInput() {
+      document.getElementById("guess").disabled     = false;
+      document.getElementById("btn-guess").disabled = false;
+    }
+
+    function checkGuess() {
+      if (!roundActive) return;
+      const input = document.getElementById("guess");
+      const guess = input.value.trim().toLowerCase();
+      if (!guess) return;
+
+      if (guess === current.answer) {
+        const earned = calcPoints(attempts);
+        points += earned;
+        updatePointsDisplay();
+        saveState();
+        renderLetterHint(2); // show full correct word
+        document.getElementById("result").innerText   = `✅ Correto! +${earned} pts`;
+        document.getElementById("sub-info").innerText = attempts === 0 ? "Acertou de primeira! 🎉" : `Acertou com ${attempts} tentativa(s).`;
+        endRound();
+        return;
+      }
+
+      attempts++;
+      input.value = "";
+
+      if (attempts === 1) {
+        // 1º erro: revela 1 letra aleatória
+        revealRandomLetters(1);
+        renderLetterHint(1);
+        document.getElementById("result").innerText   = "❌ Errado!";
+        const wordInfo = current.answer.split(" ").map(w => w.length + " letras").join(" + ");
+        document.getElementById("sub-info").innerText = `A palavra tem ${wordInfo}. Uma letra foi revelada!`;
+      } else if (attempts === 2) {
+        // 2º erro: revela mais 2 letras aleatórias
+        revealRandomLetters(2);
+        renderLetterHint(1);
+        document.getElementById("result").innerText   = "❌ Errado!";
+        document.getElementById("sub-info").innerText = `Mais 2 letras reveladas. Última chance!`;
+      } else {
+        // 3º erro: revela a palavra completa em amarelo
+        renderLetterHint(3);
+        document.getElementById("result").innerText   = `❌ Era: "${current.answer}"`;
+        document.getElementById("sub-info").innerText = "Não foi dessa vez. Tente a próxima!";
+        endRound();
+      }
+    }
+
+    function endRound() {
+      roundActive = false;
+      document.getElementById("guess").disabled      = true;
+      document.getElementById("btn-guess").disabled  = true;
+      document.getElementById("btn-next").style.display = "block";
+    }
+
+    function nextRound() {
+      spendEnergy(); // gasta energia ao sair da imagem atual
+      // após a 10ª rodada, oferecer anúncio se ainda não assistiu
+      if (roundCount === AD_AFTER && !adWatched) { openEnergyModal(); return; }
+      if (energy <= 0 && adWatched)  { showDoneScreen(); return; }
+      if (energy <= 0)               { openEnergyModal(); return; }
+      loadNext();
+    }
+
+    function updatePointsDisplay() {
+      document.getElementById("points").innerText = points;
+    }
+
+    // ── KEYBOARD ──────────────────────────────────────────
+    let enterCount = 0;
+    document.getElementById("guess").addEventListener("keydown", e => {
+      if (e.key === "Enter" && roundActive) checkGuess();
+    });
+    document.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !roundActive) {
+        const btn = document.getElementById("btn-next");
+        if (btn.style.display === "none") return;
+        enterCount++;
+        if (enterCount >= 2) {
+          enterCount = 0;
+          nextRound();
+        }
+      } else if (e.key !== "Enter") {
+        enterCount = 0;
+      }
+    });
+
+    // ── INIT ──────────────────────────────────────────────
+    loadState();
+    renderEnergy();
+    updatePointsDisplay();
+    initGame();
+  </script>
+<p style="max-width:420px;margin:8px auto 0;text-align:center;font-size:12px;color:#475569;">
+    <a href="about.html" style="color:#3b82f6;text-decoration:none;">Sobre</a>
+    &nbsp;·&nbsp;
+    <a href="privacy.html" style="color:#3b82f6;text-decoration:none;">Política de Privacidade</a>
+    &nbsp;·&nbsp;
+    <a href="contact.html" style="color:#3b82f6;text-decoration:none;">Contato</a>
+  </p>
+
+</body>
+</html>
